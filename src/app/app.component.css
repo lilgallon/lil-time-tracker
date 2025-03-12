@@ -2,3 +2,12 @@
   height: 0.1rem !important;
   font-size: 0.1rem !important;
 }
+
+.fc-timegrid-slot-label-frame {
+  height: 0.1rem;
+  padding-right: 4px;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  font-size: 1rem !important;
+}

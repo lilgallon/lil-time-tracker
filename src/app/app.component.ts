@@ -1,11 +1,13 @@
-import {Component, ViewEncapsulation} from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {Component, ViewChild, ViewEncapsulation} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
 import {CalendarOptions} from '@fullcalendar/core';
-import {FullCalendarModule} from '@fullcalendar/angular';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {FullCalendarComponent, FullCalendarModule} from '@fullcalendar/angular';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
 import interactionPlugin from '@fullcalendar/interaction';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import {LocalStorageService} from '../services/local-storage.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +17,8 @@ import interactionPlugin from '@fullcalendar/interaction';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
   title = 'lil-time-tracker';
   calendarOptions: CalendarOptions = {
     initialView: 'timeGridWeek',
@@ -26,34 +30,52 @@ export class AppComponent {
       nextYear: 'chevrons-right'
     },
     slotDuration: '00:01:00',
-    slotLabelInterval: "00:10:00",
+    slotLabelInterval: "00:30:00",
     eventShortHeight: 1,
-    plugins: [timeGridPlugin, bootstrap5Plugin, interactionPlugin],
+    plugins: [dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin],
     headerToolbar: {
-      left: 'prev,next',
+      left: 'prev,next today myCustomButton',
       center: 'title',
-      right: 'timeGridWeek,timeGridDay' // user can switch between the two
+      right: 'dayGridMonth,timeGridWeek,timeGridDay' // user can switch between the two
     },
     weekends: false,
     nowIndicator: true,
     businessHours: {
-      daysOfWeek: [ 1, 2, 3, 4, 5 ],
+      daysOfWeek: [1, 2, 3, 4, 5],
       startTime: '09:00',
       endTime: '18:00',
     },
     // slotMinTime: '06:00:00',
     // slotMaxTime: '22:00:00',
-    locale: 'fr-FR'
-  };
-  events = [
-    {
-      id: 'a',
-      title: 'my event',
-      start: '2025-03-12T10:30:00',
-      end: '2025-03-12T11:30:00',
-      editable: true,
-      startEditable: true,
-      durationEditable: true
+    locale: 'fr-FR',
+    events: LocalStorageService.loadEvents(),
+    eventsSet: (events) => LocalStorageService.saveEvents(events),
+    customButtons: {
+      myCustomButton: {
+        text: 'custom!',
+        click: () => {
+          // LocalStorageService.saveEvents(this.events)
+          this.calendarComponent.getApi().addEvent(
+            {
+              id: 'a',
+              title: 'my event',
+              start: '2025-03-12T10:30:00',
+              end: '2025-03-12T11:30:00'
+            }
+          )
+        }
+      }
+    },
+
+    editable: true,
+    eventStartEditable: true,
+    eventDurationEditable: true,
+
+    selectable: true,
+    selectMirror: true,
+    selectMinDistance: 1,
+    select: (info) => {
+      console.log(info)
     }
-  ];
+  };
 }
