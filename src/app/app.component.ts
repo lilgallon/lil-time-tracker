@@ -34,8 +34,8 @@ export class AppComponent {
     eventShortHeight: 1,
     plugins: [dayGridPlugin, timeGridPlugin, bootstrap5Plugin, interactionPlugin],
     headerToolbar: {
-      left: 'prev,next today myCustomButton',
-      center: 'title',
+      left: 'prev,next today',
+      center: 'startTimer',
       right: 'dayGridMonth,timeGridWeek,timeGridDay' // user can switch between the two
     },
     weekends: false,
@@ -45,24 +45,31 @@ export class AppComponent {
       startTime: '09:00',
       endTime: '18:00',
     },
+    height: '100vh',
     // slotMinTime: '06:00:00',
     // slotMaxTime: '22:00:00',
     locale: 'fr-FR',
     events: LocalStorageService.loadEvents(),
     eventsSet: (events) => LocalStorageService.saveEvents(events),
     customButtons: {
-      myCustomButton: {
-        text: 'custom!',
+      startTimer: {
+        text: 'démarrer un timer',
         click: () => {
-          // LocalStorageService.saveEvents(this.events)
+          const start = new Date()
           this.calendarComponent.getApi().addEvent(
             {
-              id: 'a',
-              title: 'my event',
-              start: '2025-03-12T10:30:00',
-              end: '2025-03-12T11:30:00'
+              id: 'timer',
+              title: 'truc',
+              start: start.toISOString(),
+              end: new Date().toISOString()
             }
           )
+
+          setInterval(() => {
+            this.calendarComponent.getApi().getEventById('timer')?.setEnd(new Date().toISOString())
+            this.calendarComponent.getApi().setOption('customButtons', {startTimer: {text: ((new Date().getUTCSeconds() - start.getUTCSeconds())).toString() }})
+            console.log(this.calendarComponent.getApi().getEventById('timer'))
+          }, 1000)
         }
       }
     },
